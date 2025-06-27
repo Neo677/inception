@@ -1,0 +1,77 @@
+# ──────────────────────────────────────────────
+# docker-compose.yml – Inception 42
+# ──────────────────────────────────────────────
+#   • 1 service = 1 Dockerfile
+#   • aucun image “prete à l’emploi”
+#   • reseau bridge unique “inception”
+#   • deux volumes bind-mounts dans /home/login/data
+#   • toutes les variables dans .env
+#   • NGINX seul point d’entree (443)
+# ──────────────────────────────────────────────
+
+version: "3.3"
+
+services:
+  mariadb:
+    build: ./requirements/mariadb          # Dockerfile perso
+    image: mariadb                         # meme nom que le service
+    container_name: srcs-mariadb-1
+    env_file: .env                         # ➜ MYSQL_* injectees
+    restart: always
+    volumes:
+      - mariadb:/var/lib/mysql             # persistance BDD
+    networks:
+      - inception
+
+  wordpress:
+    build: ./requirements/wordpress
+    image: wordpress
+    container_name: srcs-wordpress-1
+    env_file: .env                         # ➜ DB_*, DOMAIN_NAME, …
+    depends_on:
+      - mariadb
+    restart: always
+    volumes:
+      - wordpress:/var/www/html            # persistance fichiers WP
+    networks:
+      - inception
+
+  nginx:
+    build: ./requirements/nginx
+    image: nginx
+    container_name: srcs-nginx-1
+    env_file: .env                         # juste pour DOMAIN_NAME si besoin
+    depends_on:
+      - wordpress
+    restart: always
+    ports:                                 # expose uniquement 443
+      - "443:443"
+    volumes:
+      - wordpress:/var/www/html:ro         # acces RO aux fichiers
+    networks:
+      - inception
+
+# ──────────────────────────────────────────────
+# Volumes : bind-mounts obligatoires dans /home/login/data
+# ──────────────────────────────────────────────
+volumes:
+  mariadb:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/thobenel/data/mariadb
+      o: bind
+
+  wordpress:
+    driver: local
+    driver_opts:
+      type: none
+      device: /home/thobenel/data/wordpress
+      o: bind
+
+# ──────────────────────────────────────────────
+# Reseau unique
+# ──────────────────────────────────────────────
+networks:
+  inception:
+    driver: bridge
