@@ -61,4 +61,4 @@ if ! wp user get "$WP_USER" --allow-root > /dev/null 2>&1; then
 fi
 
 echo "Lancement de PHP-FPM..."
-exec php-fpm -Fz`a
+exec php-fpm -F
