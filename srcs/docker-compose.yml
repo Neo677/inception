@@ -13,13 +13,13 @@ version: "3.3"
 
 services:
   mariadb:
-    build: ./requirements/mariadb          # Dockerfile perso
-    image: mariadb                         # meme nom que le service
+    build: ./requirements/mariadb
+    image: mariadb
     container_name: srcs-mariadb-1
-    env_file: .env                         # ➜ MYSQL_* injectees
+    env_file: .env
     restart: always
     volumes:
-      - mariadb:/var/lib/mysql             # persistance BDD
+      - mariadb:/var/lib/mysql
     networks:
       - inception
 
@@ -27,12 +27,12 @@ services:
     build: ./requirements/wordpress
     image: wordpress
     container_name: srcs-wordpress-1
-    env_file: .env                         # ➜ DB_*, DOMAIN_NAME, …
+    env_file: .env
     depends_on:
       - mariadb
     restart: always
     volumes:
-      - wordpress:/var/www/html            # persistance fichiers WP
+      - wordpress:/var/www/html
     networks:
       - inception
 
@@ -40,14 +40,14 @@ services:
     build: ./requirements/nginx
     image: nginx
     container_name: srcs-nginx-1
-    env_file: .env                         # juste pour DOMAIN_NAME si besoin
+    env_file: .env
     depends_on:
       - wordpress
     restart: always
-    ports:                                 # expose uniquement 443
+    ports:
       - "443:443"
     volumes:
-      - wordpress:/var/www/html:ro         # acces RO aux fichiers
+      - wordpress:/var/www/html:ro
     networks:
       - inception
 

@@ -4,7 +4,7 @@
 
 FROM php:7.4-fpm
 
-# Paquets nécessaires
+# Paquets necessaires
 RUN apt-get update && apt-get install -y \
 	mariadb-client \
 	wget \
@@ -22,7 +22,7 @@ RUN curl -O https://raw.githubusercontent.com/wp-cli/builds/gh-pages/phar/wp-cli
     && chmod +x wp-cli.phar \
     && mv wp-cli.phar /usr/local/bin/wp
 
-# Copie de l’entrée
+# Copie de l’entree
 COPY ./tools/entrypoint.sh /entrypoint.sh
 RUN chmod +x /entrypoint.sh
 
